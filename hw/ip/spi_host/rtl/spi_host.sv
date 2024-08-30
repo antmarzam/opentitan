@@ -31,6 +31,7 @@ module spi_host
   output logic [NumCS-1:0] cio_csb_en_o,
   output logic [3:0]       cio_sd_o,
   output logic [3:0]       cio_sd_en_o,
+  output logic [3:0]       cio_sd_en_old_o,
   input        [3:0]       cio_sd_i,
 
   // Passthrough interface
@@ -455,6 +456,7 @@ module spi_host
     .csb_o                 (csb),
     .sd_o                  (sd_out),
     .sd_en_o               (sd_en_core),
+    .sd_en_old_o           (cio_sd_en_old_o),
     .sd_i,
     .rx_stall_o            (rx_stall),
     .tx_stall_o            (tx_stall),

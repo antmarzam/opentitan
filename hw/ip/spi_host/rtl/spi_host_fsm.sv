@@ -19,6 +19,7 @@ module spi_host_fsm
   output logic                       sck_o,
   output logic [NumCS-1:0]           csb_o,
   output logic [3:0]                 sd_en_o,
+  output logic [3:0]                sd_en_old_o,
   output logic                       last_read_o,
   output logic                       last_write_o,
   output logic                       wr_en_o,
@@ -641,6 +642,63 @@ module spi_host_fsm
       end
     end // else: !if(&csb_o)
   end
+
+  logic [3:0] sd_en_o_old;
+  assign sd_en_old_o = sd_en_o_old;
+  always_comb begin
+    if (&csb_o) begin
+      sd_en_o_old[3:0] = 4'h0;
+    end else begin
+      // Only update the sd_en_o on the right clock transition. Since sck_o
+      // is generated from the sys clock we ensure we only drive the data on the
+      // right clock edge
+      unique case (speed_o)
+        Standard: begin
+          sd_en_o_old[0]   = cmd_wr_en_q | cmd_wr_en_last_bit;
+          sd_en_o_old[1]   = 1'b0;
+          sd_en_o_old[3:2] = 2'b00;
+        end
+        Dual:     begin
+          sd_en_o_old[1:0] = {2{cmd_wr_en_q}};
+          sd_en_o_old[3:2] = 2'b00;
+        end
+        Quad:     begin
+          sd_en_o_old[3:0] = {4{cmd_wr_en_q}};
+        end
+        default: begin
+          // invalid speed
+          sd_en_o_old[3:0] = 4'h0;
+        end
+      endcase
+    end // else: !if(&csb_o)
+  end
+
+  `ASSERT(FSM_Equivalence_A,
+          sd_en_o == sd_en_o_old,
+          clk_i, rst_ni)
+
+/* -----\/----- EXCLUDED -----\/-----
+  posedge_clk_p: assert property (@(posedge clk_i) disable iff(!rst_ni | csb_o)
+                   sd_en_o == sd_en_o_old);
+  negedge_clk_p: assert property (@(negedge clk_i) disable iff(!rst_ni | csb_o)
+                   sd_en_o == sd_en_o_old);
+ -----/\----- EXCLUDED -----/\----- */
+
+  posedge_sck_p: assert property (@(posedge sck_o) disable iff(!rst_ni | csb_o | drive_posedge)
+                   sd_en_o == sd_en_o_old);
+  negedge_sck_p: assert property (@(negedge sck_o) disable iff(!rst_ni | csb_o | !drive_posedge)
+                   sd_en_o == sd_en_o_old);
+
+  phase_zero_enable_equiv_p: assert property (@(posedge clk_i) disable iff(!rst_ni | csb_o | cpha)
+                   sd_en_o == sd_en_o_old);
+
+
+  
+/* -----\/----- EXCLUDED -----\/-----
+  always_comb begin
+    assert (sd_en_o == sd_en_o_old);
+  end
+ -----/\----- EXCLUDED -----/\----- */
 
   //
   // Assertions confirming valid user input.

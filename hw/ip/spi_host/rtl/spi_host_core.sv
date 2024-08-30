@@ -33,6 +33,7 @@ module spi_host_core #(
   output logic [NumCS-1:0]          csb_o,
   output logic [3:0]                sd_o,
   output logic [3:0]                sd_en_o,
+  output logic [3:0]                sd_en_old_o,
   input [3:0]                       sd_i,
 
   // Status bits
@@ -133,6 +134,7 @@ module spi_host_core #(
     .sck_o,
     .csb_o,
     .sd_en_o,
+           .sd_en_old_o,
     .last_read_o      (last_read),
     .last_write_o     (last_write),
     .wr_en_o          (wr_en),
