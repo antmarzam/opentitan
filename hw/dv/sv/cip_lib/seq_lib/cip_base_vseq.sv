@@ -450,7 +450,7 @@ class cip_base_vseq #(
       // Read all intr related csr and check interrupt pins
       intr_csrs.shuffle();
       foreach (intr_csrs[i]) begin
-        uvm_reg_data_t exp_val = `gmv(intr_csrs[i]);
+        uvm_reg_data_t exp_val;
         uvm_reg_data_t act_val;
 
         interrupt_t irq_ro_mask = '0;
@@ -461,7 +461,19 @@ class cip_base_vseq #(
           irq_ro_mask = intr_csrs[i].get_ro_mask();
         end
 
-        exp_val &= ~irq_ro_mask;
+        // There may be a current intr_state access which impedes the TB from updating intr_state
+        // mirrored value. TB blocks here to ensure the predictions kick in time
+        // We need to ensure the prediction has kicked in before we read the intr_state
+        if (intr_csrs[i].is_busy()==1) begin
+          wait (intr_csrs[i].is_busy()==0);
+          cfg.clk_rst_vif.wait_clks(1);
+        end
+        // Users may set 'reg_name.predicting_value' before calling 'reg.predict' method, and
+        // unsetting it after 'reg.predict' returns to track whether a given reg is being predicted
+        wait (intr_csrs[i].predicting_value == 0);
+        // we may need to update the exp_value here, since there may be a delay from the
+        // update above to ' exp_val'until here before we call the csr_rd
+        exp_val = `gmv(intr_csrs[i]) & ~irq_ro_mask;
 
         csr_rd(.ptr(intr_csrs[i]), .value(act_val));
         act_val &= ~irq_ro_mask;
