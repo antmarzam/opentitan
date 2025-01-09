@@ -475,17 +475,30 @@ class cip_base_vseq #(
           irq_ro_mask = intr_csrs[i].get_ro_mask();
         end
 
+<<<<<<< Updated upstream
         exp_val &= ~irq_ro_mask;
+=======
+        // we may need to update the exp_value here, since there may be a delay from the
+        // update above to ' exp_val'until here before we call the csr_rd
+        exp_val = `gmv(intr_csrs[i]) & ~irq_ro_mask;
+>>>>>>> Stashed changes
 
         csr_rd(.ptr(intr_csrs[i]), .value(act_val));
         act_val &= ~irq_ro_mask;
 
+<<<<<<< Updated upstream
         if (cfg.under_reset) break;
         `uvm_info(`gfn, $sformatf("Read %s: 0x%0h", intr_csrs[i].get_full_name(), act_val),
                   UVM_MEDIUM)
         if (intr_csrs[i].get_predicted_mask() == 0) begin
           `DV_CHECK_EQ(exp_val, act_val, {"when reading the intr CSR ",
                                           intr_csrs[i].get_full_name()})
+=======
+        if (cfg.under_reset) continue;
+        `uvm_info(`gfn, $sformatf("Read %s: 0x%0h", intr_csrs[i].`gfn, act_val), UVM_MEDIUM)
+        if (intr_csrs[i].get_predicted_mask() == 0) begin
+          `DV_CHECK_EQ(exp_val, act_val, {"when reading the intr CSR", intr_csrs[i].`gfn})
+>>>>>>> Stashed changes
 
           // if it's intr_state, also check the interrupt pin value
           if (!uvm_re_match("intr_state*", intr_csrs[i].get_name())) begin
