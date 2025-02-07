@@ -52,7 +52,6 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
     wkup_cause_cp: coverpoint wkup_cause {
       bins wkup_cause_cleared = {0};
     }
-
     wdog_regwen_cp: coverpoint wdog_regwen;
     pause_in_sleep_cp: coverpoint pause_in_sleep;
 
@@ -67,13 +66,13 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
 
     wkup_count_cp: coverpoint wkup_count {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**64-2)]};
-      bins max_val    = {2**64-1};
+      bins middle_val = {[1:(max_wkup-1)]};
+      bins max_val    = {max_wkup};
     }
     wkup_thold_cp: coverpoint wkup_thold {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**64-2)]};
-      bins max_val    = {2**64-1};
+      bins middle_val = {[1:(max_wkup-1)]};
+      bins max_val    = {max_wkup};
     }
     wkup_int_cp  : coverpoint wkup_int   {bins unset          = {0};
                                           bins set            = {1};
@@ -90,13 +89,13 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
 
     wdog_count_cp:    coverpoint wdog_count {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**32-2)]};
-      bins max_val    = {2**32-1};
+      bins middle_val = {[1:(max_wdog-1)]};
+      bins max_val    = {max_wdog};
     }
     wdog_thold_cp:    coverpoint wdog_thold {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**32-2)]};
-      bins max_val    = {2**32-1};
+      bins middle_val = {[1:(max_wdog-1)]};
+      bins max_val    = {max_wdog};
     }
     wdog_bite_rst_cp: coverpoint wdog_bite_rst   { bins unset    = {0};
                                                    bins set      = {1};
@@ -113,13 +112,13 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
 
     wdog_count_cp:    coverpoint wdog_count {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**32-2)]};
-      bins max_val    = {2**32-1};
+      bins middle_val = {[1:(max_wdog-1)]};
+      bins max_val    = {max_wdog};
     }
     wdog_thold_cp:    coverpoint wdog_thold {
       bins min_val    = {0};
-      bins middle_val = {[1:(2**32-2)]};
-      bins max_val    = {2**32-1};
+      bins middle_val = {[1:(max_wdog-1)]};
+      bins max_val    = {max_wdog};
     }
     wdog_bark_int_cp: coverpoint wdog_bark_int   { bins unset          = {0};
                                                    bins set            = {1};
