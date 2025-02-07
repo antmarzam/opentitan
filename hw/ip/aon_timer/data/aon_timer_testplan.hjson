@@ -82,6 +82,42 @@
       stage: V2
       tests: ["aon_timer_stress_all"]
     }
+    {
+      name: max_threshold
+      desc: '''
+            This runs aon_timer_smoke_max_thold_vseq in order to hit the maximum threshold
+            and help close coverage.
+            '''
+      stage: V3
+      tests: ["aon_timer_smoke_max_thold"]
+    }
+    {
+      name: min_threshold
+      desc: '''
+            This runs aon_timer_smoke_min_thold_vseq in order to hit the minimum threshold
+            and help close coverage.
+            '''
+      stage: V3
+      tests: ["aon_timer_smoke_min_thold"]
+    }
+    {
+      name: wkup_count_hi_cdc
+      desc: '''
+            This runs aon_timer_wkup_count_cdc_hi_vseq and maximises the chances to hit
+            conditional and branch coverage in wkup_count_hi_cdc (prim_reg_cdc).
+            '''
+      stage: V3
+      tests: ["aon_timer_wkup_count_cdc_hi"]
+    }
+    {
+      name: custom_intr
+      desc: '''
+            This runs aon_timer_custom_intr_vseq and maximises the chances to hit
+            FCOV interrupt coverage.
+            '''
+      stage: V3
+      tests: ["aon_timer_custom_intr"]
+    }
   ]
 
   covergroups: [
