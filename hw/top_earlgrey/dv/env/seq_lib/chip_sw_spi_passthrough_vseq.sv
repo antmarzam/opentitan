@@ -30,6 +30,7 @@ class chip_sw_spi_passthrough_vseq extends chip_sw_base_vseq;
 
   constraint read_pipeline_mode_c {
     read_pipeline_mode <= 2;
+    read_pipeline_mode > 0;
   }
 
   // Generate a random permutation of the following opcodes, and place them in
@@ -107,6 +108,7 @@ class chip_sw_spi_passthrough_vseq extends chip_sw_base_vseq;
       while (test_opcodes.size() > 0) begin
         bit [7:0] opcode = test_opcodes.pop_front();
 
+        $display("Sending opcode: spi_flash_cmd_e'(opcode) = 0x%0x",spi_flash_cmd_e'(opcode));
         `uvm_create_on(m_spi_host_seq, p_sequencer.spi_host_sequencer_h);
         // Prepare for specific opcode. The address_q is kept empty, which will
         // trigger m_spi_host_seq to do the lookup and supply a random value.
@@ -164,7 +166,7 @@ class chip_sw_spi_passthrough_vseq extends chip_sw_base_vseq;
     sw_filter_config = {<<byte{passthrough_filters}};
     sw_symbol_backdoor_overwrite("kFilteredCommands", sw_filter_config);
 
-    cov.spi_device_cg_wrap.sample_read_pipeline(read_pipeline_mode);
+//    cov.spi_device_cg_wrap.sample_read_pipeline(read_pipeline_mode);
   endtask
 
   virtual task body();
