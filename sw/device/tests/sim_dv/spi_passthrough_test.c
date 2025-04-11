@@ -32,10 +32,10 @@ OTTF_DEFINE_TEST_CONFIG();
 
 // Bit map of command slots to be filtered. This is supplied by the DV
 // environment.
-const volatile uint32_t kFilteredCommands;
+static const volatile uint32_t kFilteredCommands;
 
 // Whether to upload write commands and have software relay them.
-const volatile uint8_t kUploadWriteCommands;
+static const volatile uint8_t kUploadWriteCommands;
 
 // Which readpipeline_mode should be used for read commands.
 static const volatile uint8_t kReadPipelineMode;
