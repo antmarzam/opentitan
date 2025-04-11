@@ -87,39 +87,52 @@ status_t spi_device_testutils_configure_passthrough(
       },
       {
           // Slot 5: ReadNormal
-          .opcode = kSpiDeviceFlashOpReadNormal,
+        // AMZ: forcing a different opcode to see if the stimulus changes
+        // So far SW seems to just configure the READ_NORMAL instead of the new opcode
+        .opcode = 35,//kSpiDeviceFlashOpReadNormal,
           .address_type = kDifSpiDeviceFlashAddrCfg,
           .passthrough_swap_address = true,
           .dummy_cycles = 0,
           .payload_io_type = kDifSpiDevicePayloadIoSingle,
+          .read_pipeline_mode = 2,
           .payload_dir_to_host = true,
+          //     .read_pipeline_mode = 2,
       },
       {
           // Slot 6: ReadFast
-          .opcode = kSpiDeviceFlashOpReadFast,
+        // AMZ: forcing a different opcode to see if the stimulus changes
+        // So far SW seems to just configure the READ_FAST instead of the new opcode
+        .opcode = 15,//kSpiDeviceFlashOpReadFast,
           .address_type = kDifSpiDeviceFlashAddrCfg,
           .passthrough_swap_address = true,
           .dummy_cycles = 8,
           .payload_io_type = kDifSpiDevicePayloadIoSingle,
           .payload_dir_to_host = true,
+          .read_pipeline_mode = 2,
       },
       {
           // Slot 7: ReadDual
-          .opcode = kSpiDeviceFlashOpReadDual,
+        // AMZ: forcing a different opcode to see if the stimulus changes
+        // So far SW seems to just configure the READ_DUAL instead of the new opcode
+        .opcode = 20,//kSpiDeviceFlashOpReadDual,
           .address_type = kDifSpiDeviceFlashAddrCfg,
           .passthrough_swap_address = true,
           .dummy_cycles = 8,
           .payload_io_type = kDifSpiDevicePayloadIoDual,
           .payload_dir_to_host = true,
+          .read_pipeline_mode = 2,
       },
       {
           // Slot 8: ReadQuad
-          .opcode = kSpiDeviceFlashOpReadQuad,
+        // AMZ: forcing a different opcode to see if the stimulus changes
+        // So far SW seems to just configure the READ_QUAD instead of the new opcode
+        .opcode = 25,//kSpiDeviceFlashOpReadQuad,
           .address_type = kDifSpiDeviceFlashAddrCfg,
           .passthrough_swap_address = true,
           .dummy_cycles = 8,
           .payload_io_type = kDifSpiDevicePayloadIoQuad,
           .payload_dir_to_host = true,
+          .read_pipeline_mode = 2,
       },
       {
           // Slot 9: Read4b
@@ -151,6 +164,20 @@ status_t spi_device_testutils_configure_passthrough(
     }
     TRY(dif_spi_device_set_flash_command_slot(
         spi_device, slot, kDifToggleEnabled, read_commands[i]));
+    LOG_INFO("slot = %x, read_commands[i].read_pipeline_mode = %x, read_commands[i].opcode = %x", slot, read_commands[i].read_pipeline_mode, read_commands[i].opcode);
+    switch (read_commands[i].read_pipeline_mode) {
+    case kDifSpiDeviceReadPipelineModeZeroStages:
+      LOG_INFO("READ_PIPELINE 0");
+      break;
+    case kDifSpiDeviceReadPipelineModeTwoStagesHalfCycle:
+      LOG_INFO("READ_PIPELINE 1");
+      break;
+    case kDifSpiDeviceReadPipelineModeTwoStagesFullCycle:
+      LOG_INFO("READ_PIPELINE 2");
+      break;
+    default:
+      LOG_INFO("BAD ARG");
+    }
   }
   dif_spi_device_flash_command_t write_commands[] = {
       {
@@ -311,6 +338,28 @@ status_t spi_device_testutils_configure_read_pipeline(
     return INVALID_ARGUMENT();
   }
 
+
+  // AMZ-TODO: include all read commands in this function
+  /* const dif_spi_device_flash_command_t normal_read_cmd = { */
+  /*         // Slot 5: ReadNormal */
+  /*         .opcode = kSpiDeviceFlashOpReadNormal, */
+  /*         .address_type = kDifSpiDeviceFlashAddrCfg, */
+  /*         .passthrough_swap_address = true, */
+  /*         .dummy_cycles = 0, */
+  /*         .payload_io_type = kDifSpiDevicePayloadIoSingle, */
+  /*         .payload_dir_to_host = true, */
+  /*         .read_pipeline_mode = dual_mode, */
+  /* }; */
+  /* const dif_spi_device_flash_command_t fast_read_cmd = { */
+  /*         // Slot 6: ReadFast */
+  /*         .opcode = kSpiDeviceFlashOpReadFast, */
+  /*         .address_type = kDifSpiDeviceFlashAddrCfg, */
+  /*         .passthrough_swap_address = true, */
+  /*         .dummy_cycles = 8, */
+  /*         .payload_io_type = kDifSpiDevicePayloadIoSingle, */
+  /*         .payload_dir_to_host = true, */
+  /*         .read_pipeline_mode = dual_mode, */
+  /* }; */
   const dif_spi_device_flash_command_t dual_read_cmd = {
       // Slot 7: ReadDual
       .opcode = kSpiDeviceFlashOpReadDual,
@@ -331,10 +380,19 @@ status_t spi_device_testutils_configure_read_pipeline(
       .payload_dir_to_host = true,
       .read_pipeline_mode = quad_mode,
   };
+  /* TRY(dif_spi_device_set_flash_command_slot(spi_device, /\*slot=*\/5, */
+  /*                                           kDifToggleEnabled, normal_read_cmd)); */
+  /* TRY(dif_spi_device_set_flash_command_slot(spi_device, /\*slot=*\/6, */
+  /*                                           kDifToggleEnabled, fast_read_cmd)); */
   TRY(dif_spi_device_set_flash_command_slot(spi_device, /*slot=*/7,
                                             kDifToggleEnabled, dual_read_cmd));
   TRY(dif_spi_device_set_flash_command_slot(spi_device, /*slot=*/8,
                                             kDifToggleEnabled, quad_read_cmd));
+  // AMZ: for context, I see the read_pipeline set to 2 here, but HW never receives that value
+  LOG_INFO("dual_mode = %x", dual_mode);
+  LOG_INFO("quad_mode = %x", quad_mode);
+  LOG_INFO("dual_read_cmd.read_pipeline_mode = %x",dual_read_cmd.read_pipeline_mode);
+  LOG_INFO("quad_read_cmd.read_pipeline_mode = %x",quad_read_cmd.read_pipeline_mode);
   return OK_STATUS();
 }
 
